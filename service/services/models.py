@@ -6,8 +6,18 @@ from services.tasks import set_price
 
 
 class Service(models.Model):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.__full_price = self.full_price
+
     name = models.CharField(max_length=50)
     full_price = models.PositiveIntegerField()
+
+    def save(self, *args, **kwargs):
+        if self.full_price != self.__full_price:
+            for subscription in self.subscriptions.all():
+                set_price.delay(subscription.id)
+        return super().save(*args, **kwargs)
 
 
 class Plan(models.Model):
