@@ -1,5 +1,3 @@
-import time
-
 from celery import shared_task
 from celery_singleton import Singleton
 from django.db.models import F
