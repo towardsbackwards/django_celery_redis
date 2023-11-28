@@ -15,8 +15,8 @@ class Service(models.Model):
 
     def save(self, *args, **kwargs):
         if self.full_price != self.__full_price:
-            for subscription in self.subscriptions.all():
-                set_price.delay(subscription.id)
+            subscriptions_ids = [s.id for s in self.subscriptions.all()]
+            set_price.delay(subscriptions_ids)
         return super().save(*args, **kwargs)
 
 
@@ -36,8 +36,8 @@ class Plan(models.Model):
 
     def save(self, *args, **kwargs):
         if self.discount_percent != self.__discount_percent:
-            for subscription in self.subscriptions.all():
-                set_price.delay(subscription.id)
+            subscriptions_ids = [s.id for s in self.subscriptions.all()]
+            set_price.delay(subscriptions_ids)
         return super().save(*args, **kwargs)
 
 

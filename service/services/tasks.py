@@ -6,9 +6,10 @@ from django.db.models import F
 
 
 @shared_task(base=Singleton)
-def set_price(subscription_id):
+def set_price(subscriptions_ids):
     from services.models import Subscription
-    subscription = Subscription.objects.filter(id=subscription_id).annotate(
-        annotated_price=F('service__full_price') * (1 - (F('plan__discount_percent') / 100.00))).first()
-    subscription.price = subscription.annotated_price
-    subscription.save(update_fields=['price'])
+    subscriptions = Subscription.objects.filter(id__in=subscriptions_ids).annotate(
+        annotated_price=F('service__full_price') * (1 - (F('plan__discount_percent') / 100.00)))
+    for s in subscriptions:
+        s.price = s.annotated_price
+    Subscription.objects.bulk_update(subscriptions, ["price"])
